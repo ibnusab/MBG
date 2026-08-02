@@ -258,110 +258,99 @@ export const Letter: React.FC = () => {
                   </div>
                 </motion.div>
               ) : (
-                /* OPENED HANDWRITTEN LETTER (MATCHING IMAGE 2 EXACTLY) */
+                /* OPENED HANDWRITTEN LETTER */
                 <motion.div
                   key={`letter-opened-${currentLetter.id}`}
                   initial={{ opacity: 0, y: 30, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 30, scale: 0.95 }}
                   transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-                  className="paper-sheet w-full max-w-xl mx-auto rounded-[24px] sm:rounded-[28px] p-4 sm:p-8 relative text-slate-800 shadow-2xl border border-pink-200/80 overflow-hidden"
+                  className="paper-sheet w-full max-w-xl mx-auto rounded-[24px] sm:rounded-[28px] p-4 sm:p-7 relative text-slate-800 shadow-2xl border border-pink-200/80 overflow-hidden"
                 >
-                  {/* Top Action Header Bar - Mobile Responsive */}
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3.5 mb-5 border-b border-rose-200/60">
+                  {/* Top Header Bar with Icon-Only Action Buttons */}
+                  <div className="flex items-center justify-between gap-2 pb-3 mb-4 border-b border-rose-200/80">
                     {/* Left side tag & date */}
-                    <div className="flex items-center justify-between sm:justify-start space-x-2">
-                      <div className="flex items-center space-x-1.5 text-rose-500 text-[11px] sm:text-xs font-sans font-bold uppercase tracking-wider">
-                        <span className="text-sm">💌</span>
-                        <span className="bg-rose-100/70 text-rose-700 px-2 py-0.5 rounded-md">SURAT CINTA</span>
-                        <span className="text-slate-400 font-normal">•</span>
-                        <span className="text-slate-500 font-medium">{currentLetter.date || '2026-08-02'}</span>
-                      </div>
-
-                      {/* On mobile: Lipat Amplop on the top right */}
-                      <button
-                        onClick={() => setIsOpen(false)}
-                        className="sm:hidden px-3 py-1 rounded-full bg-gradient-to-r from-[#DB2777] to-[#E11D48] text-white text-[11px] font-sans font-bold flex items-center space-x-1 shadow-sm active:scale-95 cursor-pointer shrink-0"
-                      >
-                        <RotateCcw className="w-3 h-3" />
-                        <span className="whitespace-nowrap">Lipat Amplop</span>
-                      </button>
+                    <div className="flex items-center space-x-1.5 text-rose-500 text-[11px] sm:text-xs font-sans font-bold uppercase tracking-wider min-w-0">
+                      <span className="text-sm shrink-0">💌</span>
+                      <span className="bg-rose-100/80 text-rose-700 px-2 py-0.5 rounded-md text-[10px] font-bold whitespace-nowrap">SURAT CINTA</span>
+                      <span className="text-slate-300 shrink-0">•</span>
+                      <span className="text-slate-500 font-medium text-[11px] truncate">{currentLetter.date || '2026-08-02'}</span>
                     </div>
 
-                    {/* Action buttons bar */}
-                    <div className="flex items-center justify-end space-x-1.5 sm:space-x-2 overflow-x-auto pt-1 sm:pt-0">
-                      {/* Copy Button */}
+                    {/* Right side Icon-Only Action Buttons */}
+                    <div className="flex items-center space-x-1.5 shrink-0">
+                      {/* Salin Button (Icon Only) */}
                       <button
                         onClick={handleCopy}
-                        className="px-2.5 py-1.5 rounded-xl bg-white/90 hover:bg-pink-100 text-pink-700 border border-pink-200 text-xs font-sans font-bold flex items-center space-x-1 shadow-2xs cursor-pointer transition-all active:scale-95 shrink-0"
-                        title="Salin isi surat"
+                        className={`p-2 rounded-xl transition-all active:scale-90 border shadow-2xs ${
+                          copied
+                            ? 'bg-emerald-50 text-emerald-600 border-emerald-200'
+                            : 'bg-white hover:bg-pink-50 text-pink-600 border-pink-200'
+                        }`}
+                        title={copied ? "Tersalin!" : "Salin isi surat"}
+                        aria-label="Salin isi surat"
                       >
-                        {copied ? (
-                          <>
-                            <Check className="w-3.5 h-3.5 text-emerald-600" />
-                            <span className="text-emerald-600">Tersalin</span>
-                          </>
-                        ) : (
-                          <>
-                            <Copy className="w-3.5 h-3.5 text-pink-600" />
-                            <span>Salin</span>
-                          </>
-                        )}
+                        {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                       </button>
 
-                      {/* Edit Button */}
+                      {/* Edit Button (Icon Only) */}
                       <button
                         onClick={() => openEditModal(currentLetter)}
-                        className="p-1.5 px-2.5 rounded-xl bg-white/90 hover:bg-pink-100 text-pink-700 border border-pink-200 text-xs font-sans font-bold flex items-center space-x-1 cursor-pointer transition-all active:scale-95 shrink-0"
+                        className="p-2 rounded-xl bg-white hover:bg-pink-50 text-pink-600 border border-pink-200 transition-all active:scale-90 shadow-2xs"
                         title="Edit Surat"
+                        aria-label="Edit Surat"
                       >
-                        <Pencil className="w-3.5 h-3.5" />
-                        <span className="hidden xs:inline">Edit</span>
+                        <Pencil className="w-4 h-4" />
                       </button>
 
-                      {/* Delete Button */}
+                      {/* Hapus Button (Icon Only) */}
                       <button
                         onClick={() => handleDelete(currentLetter.id)}
-                        className="p-1.5 rounded-xl bg-white/90 hover:bg-rose-100 text-rose-600 border border-pink-200 cursor-pointer transition-all active:scale-95 shrink-0"
+                        className="p-2 rounded-xl bg-white hover:bg-rose-50 text-rose-600 border border-pink-200 transition-all active:scale-90 shadow-2xs"
                         title="Hapus Surat"
+                        aria-label="Hapus Surat"
                       >
-                        <Trash2 className="w-3.5 h-3.5" />
+                        <Trash2 className="w-4 h-4" />
                       </button>
 
-                      {/* Desktop Lipat Amplop Button */}
+                      {/* Lipat Amplop Button (Icon Only) */}
                       <button
                         onClick={() => setIsOpen(false)}
-                        className="hidden sm:flex px-3.5 py-1.5 rounded-full bg-gradient-to-r from-[#DB2777] to-[#E11D48] text-white text-xs font-sans font-bold items-center space-x-1.5 shadow-md hover:scale-105 active:scale-95 cursor-pointer transition-all shrink-0 ml-1"
+                        className="p-2 rounded-xl bg-gradient-to-tr from-[#DB2777] to-rose-500 text-white shadow-md hover:scale-105 active:scale-90 transition-all"
+                        title="Lipat Amplop Kembali"
+                        aria-label="Lipat Amplop Kembali"
                       >
-                        <RotateCcw className="w-3.5 h-3.5" />
-                        <span className="whitespace-nowrap">Lipat Amplop</span>
+                        <RotateCcw className="w-4 h-4" />
                       </button>
                     </div>
                   </div>
 
-                  {/* Letter Title */}
-                  <h1 className="font-serif font-extrabold text-3xl sm:text-4xl text-[#4A2038] mb-3 tracking-tight">
-                    {currentLetter.title || `To ${currentLetter.receiver || 'MyLove'}`}
-                  </h1>
+                  {/* Letter Content Area - Perfectly aligned to red margin line and notebook lines */}
+                  <div className="pl-6 sm:pl-8 pr-1 space-y-3">
+                    {/* Letter Title */}
+                    <h1 className="font-serif font-extrabold text-2xl sm:text-3xl text-[#4A2038] tracking-tight leading-snug">
+                      {currentLetter.title || `To ${currentLetter.receiver || 'MyLove'}`}
+                    </h1>
 
-                  {/* Salutation Greeting */}
-                  <div className="font-caveat italic text-2xl sm:text-3xl font-semibold text-rose-800 mb-6">
-                    Untuk {currentLetter.receiver || 'Kamu yang Paling Spesial'},
-                  </div>
-
-                  {/* Handwritten Content Lines */}
-                  <div className="font-caveat text-2xl sm:text-3xl text-[#3D2C30] leading-[2.4rem] whitespace-pre-line min-h-[180px] pl-2 py-1">
-                    {currentLetter.content}
-                  </div>
-
-                  {/* Bottom Footer Signature */}
-                  <div className="mt-8 pt-4 border-t border-rose-200/80 flex flex-col items-end text-right space-y-1">
-                    <div className="flex items-center space-x-1 text-rose-500 text-xs font-sans font-extrabold uppercase tracking-widest">
-                      <Heart className="w-3.5 h-3.5 fill-rose-500" />
-                      <span>FOREVER & ALWAYS</span>
+                    {/* Salutation Greeting */}
+                    <div className="font-caveat italic text-2xl sm:text-3xl font-semibold text-rose-800">
+                      Untuk {currentLetter.receiver || 'Kamu yang Paling Spesial'},
                     </div>
-                    <div className="font-serif font-extrabold text-xl sm:text-2xl text-[#4A2038]">
-                      {currentLetter.sender || settings.partner1_name || 'Rian'} & {currentLetter.receiver || settings.partner2_name || 'Anisa'} ❤️
+
+                    {/* Handwritten Content Lines */}
+                    <div className="font-caveat text-xl sm:text-2xl text-[#3D2C30] leading-[2.5rem] whitespace-pre-line min-h-[160px] pt-1">
+                      {currentLetter.content}
+                    </div>
+
+                    {/* Bottom Footer Signature */}
+                    <div className="mt-8 pt-4 border-t border-rose-200/80 flex flex-col items-end text-right space-y-1">
+                      <div className="flex items-center space-x-1 text-rose-500 text-xs font-sans font-extrabold uppercase tracking-widest">
+                        <Heart className="w-3.5 h-3.5 fill-rose-500" />
+                        <span>FOREVER & ALWAYS</span>
+                      </div>
+                      <div className="font-serif font-extrabold text-xl sm:text-2xl text-[#4A2038]">
+                        {currentLetter.sender || settings.partner1_name || 'Rian'} & {currentLetter.receiver || settings.partner2_name || 'Anisa'} ❤️
+                      </div>
                     </div>
                   </div>
 
