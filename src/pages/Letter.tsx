@@ -1,25 +1,9 @@
-import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "motion/react";
-import {
-  Mail,
-  Plus,
-  Sparkles,
-  Heart,
-  Pencil,
-  Trash2,
-  RotateCcw,
-  X,
-  Send,
-  Check,
-  ChevronLeft,
-  ChevronRight,
-  Calendar,
-  User,
-  Copy,
-} from "lucide-react";
-import { useCouple } from "../context/CoupleContext";
-import { LoveLetter } from "../types";
-import { dataService } from "../services/dataService";
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import { Mail, Plus, Sparkles, Heart, Pencil, Trash2, RotateCcw, X, Send, Check, ChevronLeft, ChevronRight, Calendar, User, Copy } from 'lucide-react';
+import { useCouple } from '../context/CoupleContext';
+import { LoveLetter } from '../types';
+import { dataService } from '../services/dataService';
 
 export const Letter: React.FC = () => {
   const { settings } = useCouple();
@@ -34,14 +18,12 @@ export const Letter: React.FC = () => {
   const [editingLetter, setEditingLetter] = useState<LoveLetter | null>(null);
 
   // Form Fields
-  const [title, setTitle] = useState("");
+  const [title, setTitle] = useState('');
   const [sender, setSender] = useState(settings.partner1_name);
   const [receiver, setReceiver] = useState(settings.partner2_name);
-  const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
-  const [content, setContent] = useState("");
-  const [sealColor, setSealColor] = useState<
-    "rose" | "pink" | "purple" | "gold" | "red"
-  >("rose");
+  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+  const [content, setContent] = useState('');
+  const [sealColor, setSealColor] = useState<'rose' | 'pink' | 'purple' | 'gold' | 'red'>('rose');
 
   const currentLetter = letters[selectedIndex];
 
@@ -63,7 +45,7 @@ export const Letter: React.FC = () => {
       const data = await dataService.getLetters();
       setLetters(data);
     } catch (err) {
-      console.error("Failed to load letters:", err);
+      console.error('Failed to load letters:', err);
     } finally {
       setLoading(false);
     }
@@ -71,12 +53,12 @@ export const Letter: React.FC = () => {
 
   const openCreateModal = () => {
     setEditingLetter(null);
-    setTitle("Letter For My Darling");
+    setTitle('Letter For My Darling');
     setSender(settings.partner1_name);
     setReceiver(settings.partner2_name);
-    setDate(new Date().toISOString().split("T")[0]);
-    setContent("");
-    setSealColor("rose");
+    setDate(new Date().toISOString().split('T')[0]);
+    setContent('');
+    setSealColor('rose');
     setIsModalOpen(true);
   };
 
@@ -85,9 +67,9 @@ export const Letter: React.FC = () => {
     setTitle(letter.title);
     setSender(letter.sender || settings.partner1_name);
     setReceiver(letter.receiver || settings.partner2_name);
-    setDate(letter.date || new Date().toISOString().split("T")[0]);
+    setDate(letter.date || new Date().toISOString().split('T')[0]);
     setContent(letter.content);
-    setSealColor(letter.seal_color || "rose");
+    setSealColor(letter.seal_color || 'rose');
     setIsModalOpen(true);
   };
 
@@ -103,7 +85,7 @@ export const Letter: React.FC = () => {
         receiver,
         date,
         content,
-        seal_color: sealColor,
+        seal_color: sealColor
       });
     } else {
       await dataService.addLetter({
@@ -112,7 +94,7 @@ export const Letter: React.FC = () => {
         receiver,
         date,
         content,
-        seal_color: sealColor,
+        seal_color: sealColor
       });
     }
 
@@ -121,7 +103,7 @@ export const Letter: React.FC = () => {
   };
 
   const handleDelete = async (id: string) => {
-    if (window.confirm("Apakah kamu yakin ingin menghapus surat cinta ini?")) {
+    if (window.confirm('Apakah kamu yakin ingin menghapus surat cinta ini?')) {
       await dataService.deleteLetter(id);
       setIsOpen(false);
       const updated = letters.filter((l) => l.id !== id);
@@ -134,22 +116,23 @@ export const Letter: React.FC = () => {
 
   const getSealBg = (color?: string) => {
     switch (color) {
-      case "pink":
-        return "bg-pink-500 text-white border-pink-300";
-      case "purple":
-        return "bg-purple-600 text-white border-purple-300";
-      case "gold":
-        return "bg-amber-500 text-white border-amber-200";
-      case "red":
-        return "bg-red-600 text-white border-red-300";
-      case "rose":
+      case 'pink':
+        return 'bg-pink-500 text-white border-pink-300';
+      case 'purple':
+        return 'bg-purple-600 text-white border-purple-300';
+      case 'gold':
+        return 'bg-amber-500 text-white border-amber-200';
+      case 'red':
+        return 'bg-red-600 text-white border-red-300';
+      case 'rose':
       default:
-        return "bg-rose-600 text-white border-rose-300";
+        return 'bg-rose-600 text-white border-rose-300';
     }
   };
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-12 space-y-8 min-h-[85vh] flex flex-col justify-between">
+      
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
@@ -161,8 +144,7 @@ export const Letter: React.FC = () => {
             A Love Letter For You
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 mt-1">
-            Kumpulan surat cinta romantis beramplop pink dengan tampilan tulisan
-            tangan yang manis.
+            Kumpulan surat cinta romantis beramplop pink dengan tampilan tulisan tangan yang manis.
           </p>
         </div>
 
@@ -178,14 +160,13 @@ export const Letter: React.FC = () => {
       {/* Main Letters Area */}
       {letters.length > 0 && currentLetter ? (
         <div className="space-y-6 my-auto">
+          
           {/* Letters Carousel Selector (if multiple letters) */}
           {letters.length > 1 && (
             <div className="flex items-center justify-center space-x-3 overflow-x-auto py-2">
               <button
                 onClick={() => {
-                  setSelectedIndex((prev) =>
-                    prev > 0 ? prev - 1 : letters.length - 1,
-                  );
+                  setSelectedIndex((prev) => (prev > 0 ? prev - 1 : letters.length - 1));
                   setIsOpen(false);
                 }}
                 className="p-2 rounded-full bg-white border border-pink-200 text-pink-600 hover:bg-pink-50 shadow-xs cursor-pointer transition-transform active:scale-90"
@@ -204,8 +185,8 @@ export const Letter: React.FC = () => {
                     }}
                     className={`px-3.5 py-1.5 rounded-2xl text-xs font-sans font-bold whitespace-nowrap transition-all cursor-pointer ${
                       selectedIndex === idx
-                        ? "bg-gradient-to-r from-pink-500 to-rose-500 text-white shadow-md shadow-pink-200/60 scale-105"
-                        : "bg-white text-slate-600 border border-pink-100 hover:bg-pink-50"
+                        ? 'bg-gradient-to-r from-pink-500 to-rose-500 text-white shadow-md shadow-pink-200/60 scale-105'
+                        : 'bg-white text-slate-600 border border-pink-100 hover:bg-pink-50'
                     }`}
                   >
                     💌 {letItem.title || `Surat #${idx + 1}`}
@@ -215,9 +196,7 @@ export const Letter: React.FC = () => {
 
               <button
                 onClick={() => {
-                  setSelectedIndex((prev) =>
-                    prev < letters.length - 1 ? prev + 1 : 0,
-                  );
+                  setSelectedIndex((prev) => (prev < letters.length - 1 ? prev + 1 : 0));
                   setIsOpen(false);
                 }}
                 className="p-2 rounded-full bg-white border border-pink-200 text-pink-600 hover:bg-pink-50 shadow-xs cursor-pointer transition-transform active:scale-90"
@@ -230,6 +209,7 @@ export const Letter: React.FC = () => {
 
           {/* Interactive Pink Envelope & Unfolding Handwritten Letter Stage */}
           <div className="relative flex flex-col items-center justify-center my-4 py-2 min-h-[480px] sm:min-h-[540px]">
+            
             {/* Background ambient floating heart glow */}
             <div className="absolute inset-0 pointer-events-none -z-10 flex items-center justify-center overflow-hidden">
               <div className="w-80 h-80 rounded-full bg-pink-200/50 blur-3xl animate-pulse" />
@@ -243,7 +223,7 @@ export const Letter: React.FC = () => {
                   initial={{ opacity: 0, scale: 0.95, y: 10 }}
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95, y: -10 }}
-                  transition={{ duration: 0.4, ease: "easeOut" }}
+                  transition={{ duration: 0.4, ease: 'easeOut' }}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => setIsOpen(true)}
@@ -251,22 +231,9 @@ export const Letter: React.FC = () => {
                 >
                   {/* Top Triangular Flap SVG */}
                   <div className="absolute top-0 left-0 right-0 h-1/2 pointer-events-none">
-                    <svg
-                      viewBox="0 0 500 220"
-                      className="w-full h-full"
-                      preserveAspectRatio="none"
-                    >
-                      <polygon
-                        points="0,0 500,0 250,180"
-                        fill="#F8C5D8"
-                        opacity="0.8"
-                      />
-                      <polygon
-                        points="0,0 500,0 250,180"
-                        fill="none"
-                        stroke="#FFFFFF"
-                        strokeWidth="3"
-                      />
+                    <svg viewBox="0 0 500 220" className="w-full h-full" preserveAspectRatio="none">
+                      <polygon points="0,0 500,0 250,180" fill="#F8C5D8" opacity="0.8" />
+                      <polygon points="0,0 500,0 250,180" fill="none" stroke="#FFFFFF" strokeWidth="3" />
                     </svg>
                   </div>
 
@@ -280,8 +247,7 @@ export const Letter: React.FC = () => {
                   {/* Envelope Text Content */}
                   <div className="z-10 mt-16 text-center space-y-3">
                     <h2 className="font-serif font-extrabold text-3xl sm:text-4xl text-[#4A2038] tracking-tight">
-                      {currentLetter.title ||
-                        `To ${currentLetter.receiver || "MyLove"}`}
+                      {currentLetter.title || `To ${currentLetter.receiver || 'MyLove'}`}
                     </h2>
 
                     <div>
@@ -299,24 +265,35 @@ export const Letter: React.FC = () => {
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 30, scale: 0.95 }}
                   transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-                  className="paper-sheet w-full max-w-xl mx-auto rounded-[28px] p-6 sm:p-10 relative text-slate-800 shadow-2xl border border-pink-200/80 overflow-hidden"
+                  className="paper-sheet w-full max-w-xl mx-auto rounded-[24px] sm:rounded-[28px] p-4 sm:p-8 relative text-slate-800 shadow-2xl border border-pink-200/80 overflow-hidden"
                 >
-                  {/* Top Action Header Bar */}
-                  <div className="flex items-center justify-between pb-4 mb-5 border-b border-rose-200/60">
-                    {/* Left side tag */}
-                    <div className="flex items-center space-x-1.5 text-rose-500 text-xs font-sans font-bold uppercase tracking-wider">
-                      <span className="text-sm">🔥</span>
-                      <span>
-                        SURAT CINTA • {currentLetter.date || "2026-08-02"}
-                      </span>
+                  {/* Top Action Header Bar - Mobile Responsive */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3.5 mb-5 border-b border-rose-200/60">
+                    {/* Left side tag & date */}
+                    <div className="flex items-center justify-between sm:justify-start space-x-2">
+                      <div className="flex items-center space-x-1.5 text-rose-500 text-[11px] sm:text-xs font-sans font-bold uppercase tracking-wider">
+                        <span className="text-sm">💌</span>
+                        <span className="bg-rose-100/70 text-rose-700 px-2 py-0.5 rounded-md">SURAT CINTA</span>
+                        <span className="text-slate-400 font-normal">•</span>
+                        <span className="text-slate-500 font-medium">{currentLetter.date || '2026-08-02'}</span>
+                      </div>
+
+                      {/* On mobile: Lipat Amplop on the top right */}
+                      <button
+                        onClick={() => setIsOpen(false)}
+                        className="sm:hidden px-3 py-1 rounded-full bg-gradient-to-r from-[#DB2777] to-[#E11D48] text-white text-[11px] font-sans font-bold flex items-center space-x-1 shadow-sm active:scale-95 cursor-pointer shrink-0"
+                      >
+                        <RotateCcw className="w-3 h-3" />
+                        <span className="whitespace-nowrap">Lipat Amplop</span>
+                      </button>
                     </div>
 
-                    {/* Right side buttons */}
-                    <div className="flex items-center space-x-2">
+                    {/* Action buttons bar */}
+                    <div className="flex items-center justify-end space-x-1.5 sm:space-x-2 overflow-x-auto pt-1 sm:pt-0">
                       {/* Copy Button */}
                       <button
                         onClick={handleCopy}
-                        className="px-3 py-1.5 rounded-xl bg-white/90 hover:bg-pink-100 text-pink-700 border border-pink-200 text-xs font-sans font-bold flex items-center space-x-1.5 shadow-2xs cursor-pointer transition-all active:scale-95"
+                        className="px-2.5 py-1.5 rounded-xl bg-white/90 hover:bg-pink-100 text-pink-700 border border-pink-200 text-xs font-sans font-bold flex items-center space-x-1 shadow-2xs cursor-pointer transition-all active:scale-95 shrink-0"
                         title="Salin isi surat"
                       >
                         {copied ? (
@@ -335,42 +312,41 @@ export const Letter: React.FC = () => {
                       {/* Edit Button */}
                       <button
                         onClick={() => openEditModal(currentLetter)}
-                        className="p-1.5 rounded-xl bg-white/90 hover:bg-pink-100 text-pink-700 border border-pink-200 cursor-pointer transition-all active:scale-95"
+                        className="p-1.5 px-2.5 rounded-xl bg-white/90 hover:bg-pink-100 text-pink-700 border border-pink-200 text-xs font-sans font-bold flex items-center space-x-1 cursor-pointer transition-all active:scale-95 shrink-0"
                         title="Edit Surat"
                       >
                         <Pencil className="w-3.5 h-3.5" />
+                        <span className="hidden xs:inline">Edit</span>
                       </button>
 
                       {/* Delete Button */}
                       <button
                         onClick={() => handleDelete(currentLetter.id)}
-                        className="p-1.5 rounded-xl bg-white/90 hover:bg-rose-100 text-rose-600 border border-pink-200 cursor-pointer transition-all active:scale-95"
+                        className="p-1.5 rounded-xl bg-white/90 hover:bg-rose-100 text-rose-600 border border-pink-200 cursor-pointer transition-all active:scale-95 shrink-0"
                         title="Hapus Surat"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
 
-                      {/* Lipat Amplop Button */}
+                      {/* Desktop Lipat Amplop Button */}
                       <button
                         onClick={() => setIsOpen(false)}
-                        className="px-4 py-1.5 rounded-full bg-gradient-to-r from-[#DB2777] to-[#E11D48] text-white text-xs font-sans font-bold flex items-center space-x-1.5 shadow-md hover:scale-105 active:scale-95 cursor-pointer transition-all ml-1"
+                        className="hidden sm:flex px-3.5 py-1.5 rounded-full bg-gradient-to-r from-[#DB2777] to-[#E11D48] text-white text-xs font-sans font-bold items-center space-x-1.5 shadow-md hover:scale-105 active:scale-95 cursor-pointer transition-all shrink-0 ml-1"
                       >
                         <RotateCcw className="w-3.5 h-3.5" />
-                        <span>Lipat Amplop</span>
+                        <span className="whitespace-nowrap">Lipat Amplop</span>
                       </button>
                     </div>
                   </div>
 
                   {/* Letter Title */}
                   <h1 className="font-serif font-extrabold text-3xl sm:text-4xl text-[#4A2038] mb-3 tracking-tight">
-                    {currentLetter.title ||
-                      `To ${currentLetter.receiver || "MyLove"}`}
+                    {currentLetter.title || `To ${currentLetter.receiver || 'MyLove'}`}
                   </h1>
 
                   {/* Salutation Greeting */}
                   <div className="font-caveat italic text-2xl sm:text-3xl font-semibold text-rose-800 mb-6">
-                    Untuk {currentLetter.receiver || "Kamu yang Paling Spesial"}
-                    ,
+                    Untuk {currentLetter.receiver || 'Kamu yang Paling Spesial'},
                   </div>
 
                   {/* Handwritten Content Lines */}
@@ -385,29 +361,24 @@ export const Letter: React.FC = () => {
                       <span>FOREVER & ALWAYS</span>
                     </div>
                     <div className="font-serif font-extrabold text-xl sm:text-2xl text-[#4A2038]">
-                      {currentLetter.sender || settings.partner1_name || "Rian"}{" "}
-                      &{" "}
-                      {currentLetter.receiver ||
-                        settings.partner2_name ||
-                        "Anisa"}{" "}
-                      ❤️
+                      {currentLetter.sender || settings.partner1_name || 'Rian'} & {currentLetter.receiver || settings.partner2_name || 'Anisa'} ❤️
                     </div>
                   </div>
+
                 </motion.div>
               )}
             </AnimatePresence>
+
           </div>
+
         </div>
       ) : (
         /* Empty State */
         <div className="text-center py-16 bg-white rounded-3xl p-8 border border-pink-100 max-w-md mx-auto shadow-xs space-y-4 my-auto">
           <Sparkles className="w-12 h-12 text-pink-400 mx-auto" />
-          <h3 className="font-serif font-bold text-xl text-slate-800">
-            Belum Ada Surat Cinta
-          </h3>
+          <h3 className="font-serif font-bold text-xl text-slate-800">Belum Ada Surat Cinta</h3>
           <p className="text-xs text-slate-500">
-            Tuliskan kata-kata indah pertama untuk pasanganmu untuk memulai
-            koleksi surat romantis.
+            Tuliskan kata-kata indah pertama untuk pasanganmu untuk memulai koleksi surat romantis.
           </p>
           <button
             onClick={openCreateModal}
@@ -430,11 +401,7 @@ export const Letter: React.FC = () => {
             <div className="p-4 sm:p-5 border-b border-pink-100 flex items-center justify-between shrink-0 bg-white">
               <h3 className="font-serif font-bold text-lg sm:text-xl text-slate-800 flex items-center space-x-2">
                 <Heart className="w-5 h-5 text-pink-500 fill-pink-500" />
-                <span>
-                  {editingLetter
-                    ? "Edit Surat Cinta"
-                    : "Tulis Surat Cinta Baru"}
-                </span>
+                <span>{editingLetter ? 'Edit Surat Cinta' : 'Tulis Surat Cinta Baru'}</span>
               </h3>
               <button
                 type="button"
@@ -445,16 +412,12 @@ export const Letter: React.FC = () => {
               </button>
             </div>
 
-            <form
-              onSubmit={handleSave}
-              className="flex flex-col flex-1 overflow-hidden"
-            >
+            <form onSubmit={handleSave} className="flex flex-col flex-1 overflow-hidden">
               <div className="p-4 sm:p-6 overflow-y-auto flex-1 space-y-4">
+                
                 {/* Title */}
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
-                    Judul Surat
-                  </label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Judul Surat</label>
                   <input
                     type="text"
                     required
@@ -468,9 +431,7 @@ export const Letter: React.FC = () => {
                 {/* Sender & Receiver Row */}
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">
-                      Pengirim (From)
-                    </label>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Pengirim (From)</label>
                     <input
                       type="text"
                       required
@@ -480,9 +441,7 @@ export const Letter: React.FC = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">
-                      Penerima (To)
-                    </label>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Penerima (To)</label>
                     <input
                       type="text"
                       required
@@ -496,9 +455,7 @@ export const Letter: React.FC = () => {
                 {/* Date & Seal Color */}
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">
-                      Tanggal Surat
-                    </label>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Tanggal Surat</label>
                     <input
                       type="date"
                       value={date}
@@ -507,9 +464,7 @@ export const Letter: React.FC = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">
-                      Warna Segel Lilin
-                    </label>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Warna Segel Lilin</label>
                     <select
                       value={sealColor}
                       onChange={(e) => setSealColor(e.target.value as any)}
@@ -526,9 +481,7 @@ export const Letter: React.FC = () => {
 
                 {/* Content */}
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
-                    Isi Surat Cinta
-                  </label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Isi Surat Cinta</label>
                   <textarea
                     rows={8}
                     required
@@ -538,6 +491,7 @@ export const Letter: React.FC = () => {
                     className="w-full p-4 rounded-xl border border-pink-200 focus:border-pink-400 text-lg sm:text-xl font-caveat text-slate-800 outline-none leading-relaxed bg-pink-50/20"
                   />
                 </div>
+
               </div>
 
               {/* Modal Actions */}
@@ -554,17 +508,14 @@ export const Letter: React.FC = () => {
                   className="px-6 py-2.5 rounded-xl bg-linear-to-r from-pink-500 to-rose-500 text-white font-bold text-xs shadow-md hover:scale-105 transition-all cursor-pointer flex items-center space-x-1.5"
                 >
                   <Check className="w-4 h-4" />
-                  <span>
-                    {editingLetter
-                      ? "Simpan Perubahan"
-                      : "Kirim / Simpan Surat"}
-                  </span>
+                  <span>{editingLetter ? 'Simpan Perubahan' : 'Kirim / Simpan Surat'}</span>
                 </button>
               </div>
             </form>
           </motion.div>
         </div>
       )}
+
     </div>
   );
 };
