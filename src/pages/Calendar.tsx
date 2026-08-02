@@ -3,7 +3,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Plus,
-  Calendar as CalendarIcon,
   Heart,
   BookOpen,
   FileText,
@@ -12,9 +11,7 @@ import {
   X,
   Sparkles,
   MapPin,
-  Smile,
-  Tag,
-  CheckCircle2
+  Calendar as CalendarIcon
 } from 'lucide-react';
 import { dataService } from '../services/dataService';
 import { Memory, Note, JournalEntry, Milestone } from '../types';
@@ -48,15 +45,15 @@ export const CalendarPage: React.FC = () => {
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [addType, setAddType] = useState<'memory' | 'journal' | 'note'>('memory');
-  const [filterType, setFilterType] = useState<'all' | 'memory' | 'journal' | 'note' | 'milestone'>('all');
+  const [filterType, setFilterType] = useState<'all' | 'memory' | 'journal' | 'note'>('all');
 
   // Form Fields
   const [formTitle, setFormTitle] = useState('');
   const [formDescription, setFormDescription] = useState('');
   const [formCategory, setFormCategory] = useState<any>('daily');
   const [formMood, setFormMood] = useState<any>('love');
-  const [formSender, setFormSender] = useState('Alex');
-  const [formReceiver, setFormReceiver] = useState('Emma');
+  const [formSender, setFormSender] = useState('Sabrian');
+  const [formReceiver, setFormReceiver] = useState('Anisa');
   const [formPhotoUrl, setFormPhotoUrl] = useState('');
   const [formVideoUrl, setFormVideoUrl] = useState('');
   const [formLocation, setFormLocation] = useState('');
@@ -139,9 +136,6 @@ export const CalendarPage: React.FC = () => {
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
 
-  const firstDayOfMonth = new Date(year, month, 1).getDay();
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-
   const prevMonth = () => {
     setCurrentDate(new Date(year, month - 1, 1));
   };
@@ -150,18 +144,23 @@ export const CalendarPage: React.FC = () => {
     setCurrentDate(new Date(year, month + 1, 1));
   };
 
-  const goToToday = () => {
-    const today = new Date();
-    setCurrentDate(today);
-    setSelectedDateStr(formatDateToKey(today));
-  };
-
   const monthNames = [
+    'August', 'September', 'October', 'November', 'December',
+    'January', 'February', 'March', 'April', 'May', 'June', 'July'
+  ];
+
+  // English month names matching the screenshot style
+  const monthNamesEn = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ];
+
+  const monthNamesId = [
     'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
     'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
   ];
 
-  const dayNames = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+  const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
   // Map events by date
   const eventsByDate = allEvents.reduce<Record<string, CalendarEvent[]>>((acc, evt) => {
@@ -177,6 +176,41 @@ export const CalendarPage: React.FC = () => {
     if (filterType === 'all') return true;
     return evt.type === filterType;
   });
+
+  // Calculate Calendar 42 Grid Cells
+  const firstDayOfMonth = new Date(year, month, 1).getDay(); // 0 = Sun
+  const daysInCurrentMonth = new Date(year, month + 1, 0).getDate();
+  const daysInPrevMonth = new Date(year, month, 0).getDate();
+
+  // Prev Month Days
+  const prevMonthDays = [];
+  for (let i = firstDayOfMonth - 1; i >= 0; i--) {
+    const dayNum = daysInPrevMonth - i;
+    const prevMonthIndex = month === 0 ? 11 : month - 1;
+    const prevYear = month === 0 ? year - 1 : year;
+    const dateStr = `${prevYear}-${String(prevMonthIndex + 1).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
+    prevMonthDays.push({ dayNum, dateStr, isCurrentMonth: false });
+  }
+
+  // Current Month Days
+  const currentMonthDays = [];
+  for (let d = 1; d <= daysInCurrentMonth; d++) {
+    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    currentMonthDays.push({ dayNum: d, dateStr, isCurrentMonth: true });
+  }
+
+  // Next Month Days to fill 42 cells (6 rows)
+  const totalSoFar = prevMonthDays.length + currentMonthDays.length;
+  const nextMonthDaysCount = 42 - totalSoFar;
+  const nextMonthDays = [];
+  for (let d = 1; d <= nextMonthDaysCount; d++) {
+    const nextMonthIndex = month === 11 ? 0 : month + 1;
+    const nextYear = month === 11 ? year + 1 : year;
+    const dateStr = `${nextYear}-${String(nextMonthIndex + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    nextMonthDays.push({ dayNum: d, dateStr, isCurrentMonth: false });
+  }
+
+  const calendarCells = [...prevMonthDays, ...currentMonthDays, ...nextMonthDays];
 
   // Handle adding new item
   const handleCreateSubmit = async (e: React.FormEvent) => {
@@ -213,7 +247,6 @@ export const CalendarPage: React.FC = () => {
       });
     }
 
-    // Reset form
     setFormTitle('');
     setFormDescription('');
     setFormPhotoUrl('');
@@ -221,7 +254,6 @@ export const CalendarPage: React.FC = () => {
     setFormLocation('');
     setIsModalOpen(false);
 
-    // Refresh
     await loadAllData();
   };
 
@@ -263,7 +295,6 @@ export const CalendarPage: React.FC = () => {
     }
   };
 
-  // Format display date (e.g. 20 Mei 2024)
   const formatDisplayDate = (dateStr: string) => {
     if (!dateStr) return '';
     const parts = dateStr.split('-');
@@ -271,196 +302,126 @@ export const CalendarPage: React.FC = () => {
     const yearNum = parts[0];
     const monthNum = parseInt(parts[1], 10) - 1;
     const dayNum = parseInt(parts[2], 10);
-    return `${dayNum} ${monthNames[monthNum]} ${yearNum}`;
+    return `${dayNum} ${monthNamesId[monthNum]} ${yearNum}`;
   };
 
-  const todayStr = formatDateToKey(new Date());
-
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-8">
-      {/* Header Banner */}
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-10 space-y-8">
+      
+      {/* Clean Minimalist Header */}
       <div className="text-center space-y-2">
-        <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-rose-100 text-rose-700 text-xs font-semibold">
-          <CalendarIcon className="w-3.5 h-3.5" />
-          <span>Our Love Calendar & Memories</span>
-        </div>
-        <h1 className="font-serif font-bold text-3xl sm:text-4xl text-slate-800 tracking-tight">
-          Kalender Kenangan & Catatan
+        <h1 className="font-serif font-bold text-3xl sm:text-4xl text-[#2D2426] tracking-tight">
+          Kalender Kenangan
         </h1>
-        <p className="text-xs sm:text-sm text-slate-500 max-w-xl mx-auto">
-          Catat dan jelajahi setiap momen manis, jurnal harian, serta pesan cinta berdasarkan tanggal spesial kita.
+        <p className="text-xs sm:text-sm text-[#4A3B3E]/70 max-w-md mx-auto">
+          Pilih tanggal untuk melihat dan menambahkan momen manis kita.
         </p>
       </div>
 
-      {/* Main Grid & Panel Container */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         
-        {/* Left Column: Interactive Monthly Calendar (7 Cols on LG) */}
-        <div className="lg:col-span-7 glass-card p-5 sm:p-6 rounded-3xl border border-rose-200/80 shadow-sm space-y-6">
+        {/* Simple & Clean Calendar Card (Matches UI Screenshot) */}
+        <div className="lg:col-span-7 bg-white rounded-[28px] sm:rounded-[32px] p-6 sm:p-8 shadow-sm border border-[#FDE2E8] space-y-6">
           
-          {/* Calendar Controls */}
+          {/* Header Month Year & Controls */}
           <div className="flex items-center justify-between">
-            <div>
-              <h2 className="font-serif font-bold text-xl sm:text-2xl text-slate-800">
-                {monthNames[month]} {year}
-              </h2>
-              <p className="text-xs text-slate-500">
-                {Object.keys(eventsByDate).filter(d => d.startsWith(`${year}-${String(month + 1).padStart(2, '0')}`)).length} hari bermomen bulan ini
-              </p>
-            </div>
+            <h2 className="font-serif font-bold text-2xl sm:text-3xl text-[#2D2426] tracking-tight">
+              {monthNamesEn[month]} {year}
+            </h2>
 
-            <div className="flex items-center space-x-2">
-              <button
-                onClick={goToToday}
-                className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-rose-50 text-rose-600 hover:bg-rose-100 border border-rose-200 transition-all"
-              >
-                Hari Ini
-              </button>
+            <div className="flex items-center space-x-3">
               <button
                 onClick={prevMonth}
-                className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all"
-                title="Bulan Sebelumnya"
+                className="p-1.5 rounded-full hover:bg-pink-50 text-[#DB2777] transition-colors"
+                aria-label="Previous Month"
               >
-                <ChevronLeft className="w-5 h-5" />
+                <ChevronLeft className="w-5 h-5 stroke-[2.5]" />
               </button>
               <button
                 onClick={nextMonth}
-                className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all"
-                title="Bulan Berikutnya"
+                className="p-1.5 rounded-full hover:bg-pink-50 text-[#DB2777] transition-colors"
+                aria-label="Next Month"
               >
-                <ChevronRight className="w-5 h-5" />
+                <ChevronRight className="w-5 h-5 stroke-[2.5]" />
               </button>
             </div>
           </div>
 
-          {/* Weekday Labels */}
-          <div className="grid grid-cols-7 gap-1 text-center border-b border-rose-100 pb-2">
-            {dayNames.map((d, i) => (
+          {/* Weekday Labels Header */}
+          <div className="grid grid-cols-7 text-center pb-3 border-b border-[#FDE2E8]/80">
+            {dayNames.map((d) => (
               <div
                 key={d}
-                className={`text-xs font-bold uppercase tracking-wider py-1 ${
-                  i === 0 ? 'text-rose-500' : 'text-slate-500'
-                }`}
+                className="text-xs font-sans font-bold text-[#4A3B3E]/70 uppercase tracking-wider"
               >
                 {d}
               </div>
             ))}
           </div>
 
-          {/* Calendar Days Grid */}
-          <div className="grid grid-cols-7 gap-1.5 sm:gap-2">
-            {/* Empty slots before first day */}
-            {Array.from({ length: firstDayOfMonth }).map((_, idx) => (
-              <div key={`empty-${idx}`} className="h-14 sm:h-16 rounded-2xl bg-slate-50/40 border border-transparent" />
-            ))}
-
-            {/* Days in Month */}
-            {Array.from({ length: daysInMonth }).map((_, idx) => {
-              const dayNum = idx + 1;
-              const dayDateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
-              
-              const dayEvents = eventsByDate[dayDateStr] || [];
-              const isSelected = selectedDateStr === dayDateStr;
-              const isToday = todayStr === dayDateStr;
+          {/* Days Grid (6 Rows x 7 Columns) */}
+          <div className="grid grid-cols-7 gap-y-3 sm:gap-y-4 text-center">
+            {calendarCells.map((cell, idx) => {
+              const isSelected = selectedDateStr === cell.dateStr;
+              const hasEvents = (eventsByDate[cell.dateStr] || []).length > 0;
 
               return (
-                <button
-                  key={`day-${dayNum}`}
-                  onClick={() => setSelectedDateStr(dayDateStr)}
-                  className={`relative h-14 sm:h-16 p-2 rounded-2xl border flex flex-col justify-between items-center transition-all duration-200 group overflow-hidden ${
-                    isSelected
-                      ? 'bg-rose-500 text-white border-rose-600 shadow-md ring-2 ring-rose-300 scale-[1.02] z-10'
-                      : isToday
-                      ? 'bg-rose-50 border-rose-300 text-rose-900 font-bold'
-                      : 'bg-white/90 border-slate-100 text-slate-700 hover:border-rose-200 hover:bg-rose-50/40'
-                  }`}
-                >
-                  {/* Date Number */}
-                  <span
-                    className={`text-xs sm:text-sm font-bold flex items-center justify-center ${
+                <div key={`${cell.dateStr}-${idx}`} className="flex flex-col items-center justify-center">
+                  <button
+                    onClick={() => {
+                      setSelectedDateStr(cell.dateStr);
+                      // If clicked outside current month, switch month view
+                      if (!cell.isCurrentMonth) {
+                        const clickedDate = new Date(cell.dateStr);
+                        setCurrentDate(new Date(clickedDate.getFullYear(), clickedDate.getMonth(), 1));
+                      }
+                    }}
+                    className={`relative w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-sm font-sans transition-all ${
                       isSelected
-                        ? 'text-white'
-                        : isToday
-                        ? 'w-6 h-6 rounded-full bg-rose-500 text-white text-xs shadow-xs'
-                        : 'text-slate-700 group-hover:text-rose-600'
+                        ? 'bg-[#DB2777] text-white font-bold shadow-md shadow-pink-500/30 scale-105'
+                        : cell.isCurrentMonth
+                        ? 'text-[#2D2426] font-semibold hover:bg-pink-50 hover:text-[#DB2777]'
+                        : 'text-slate-300 font-normal hover:text-slate-400'
                     }`}
                   >
-                    {dayNum}
-                  </span>
+                    <span>{cell.dayNum}</span>
 
-                  {/* Event Color Dots */}
-                  <div className="flex items-center justify-center gap-1 flex-wrap max-w-full px-1">
-                    {dayEvents.slice(0, 4).map((evt, i) => (
-                      <span
-                        key={evt.id || i}
-                        className={`w-2 h-2 rounded-full transition-transform ${
-                          isSelected
-                            ? 'bg-white'
-                            : evt.type === 'memory'
-                            ? 'bg-rose-500'
-                            : evt.type === 'journal'
-                            ? 'bg-amber-500'
-                            : evt.type === 'note'
-                            ? 'bg-pink-500'
-                            : 'bg-emerald-500'
-                        }`}
-                        title={evt.title}
-                      />
-                    ))}
-                    {dayEvents.length > 4 && (
-                      <span className={`text-[8px] font-bold leading-none ${isSelected ? 'text-white' : 'text-slate-400'}`}>
-                        +
-                      </span>
+                    {/* Has Events Indicator Dot */}
+                    {hasEvents && !isSelected && (
+                      <span className="absolute bottom-1 w-1.5 h-1.5 rounded-full bg-[#DB2777]" />
                     )}
-                  </div>
-                </button>
+                  </button>
+                </div>
               );
             })}
           </div>
 
-          {/* Quick Legend */}
-          <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-slate-500 pt-2 border-t border-rose-100">
-            <div className="flex items-center space-x-1.5">
-              <span className="w-2.5 h-2.5 rounded-full bg-rose-500" />
-              <span>Memories</span>
-            </div>
-            <div className="flex items-center space-x-1.5">
-              <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
-              <span>Journal</span>
-            </div>
-            <div className="flex items-center space-x-1.5">
-              <span className="w-2.5 h-2.5 rounded-full bg-pink-500" />
-              <span>Love Notes</span>
-            </div>
-          </div>
-
         </div>
 
-        {/* Right Column: Selected Date Event Details & Quick Add (5 Cols on LG) */}
-        <div className="lg:col-span-5 glass-card p-5 sm:p-6 rounded-3xl border border-rose-200/80 shadow-sm space-y-6">
+        {/* Selected Date Events & Memory List */}
+        <div className="lg:col-span-5 bg-white rounded-[28px] sm:rounded-[32px] p-6 sm:p-8 shadow-sm border border-[#FDE2E8] space-y-6">
           
-          {/* Header for Selected Date */}
-          <div className="flex items-center justify-between pb-3 border-b border-rose-100">
+          <div className="flex items-center justify-between pb-4 border-b border-[#FDE2E8]">
             <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-rose-500">
-                Momen Pada Tanggal
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[#DB2777]">
+                Tanggal Terpilih
               </span>
-              <h3 className="font-serif font-bold text-xl text-slate-800">
+              <h3 className="font-serif font-bold text-xl text-[#2D2426]">
                 {formatDisplayDate(selectedDateStr)}
               </h3>
             </div>
 
             <button
               onClick={() => setIsModalOpen(true)}
-              className="px-3.5 py-2 rounded-2xl bg-rose-500 text-white hover:bg-rose-600 text-xs font-semibold flex items-center space-x-1.5 shadow-sm transition-all"
+              className="px-4 py-2 rounded-full bg-[#DB2777] hover:bg-pink-700 text-white text-xs font-bold flex items-center space-x-1.5 shadow-sm transition-all"
             >
               <Plus className="w-4 h-4" />
-              <span>Tambah Data</span>
+              <span>Tambah</span>
             </button>
           </div>
 
-          {/* Category Filter Tabs */}
-          <div className="flex items-center space-x-1 overflow-x-auto pb-1 scrollbar-none">
+          {/* Filter Categories */}
+          <div className="flex items-center space-x-1.5 overflow-x-auto pb-1 scrollbar-none">
             {[
               { id: 'all', label: 'Semua' },
               { id: 'memory', label: 'Memory' },
@@ -470,10 +431,10 @@ export const CalendarPage: React.FC = () => {
               <button
                 key={tab.id}
                 onClick={() => setFilterType(tab.id as any)}
-                className={`px-3 py-1 rounded-xl text-xs font-medium whitespace-nowrap transition-all ${
+                className={`px-3 py-1 rounded-full text-xs font-bold transition-all ${
                   filterType === tab.id
-                    ? 'bg-rose-500 text-white shadow-sm'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    ? 'bg-pink-100 text-[#DB2777]'
+                    : 'bg-slate-100 text-slate-600 hover:bg-pink-50'
                 }`}
               >
                 {tab.label}
@@ -481,29 +442,29 @@ export const CalendarPage: React.FC = () => {
             ))}
           </div>
 
-          {/* Selected Date Events List */}
-          <div className="space-y-4 max-h-[500px] overflow-y-auto pr-1">
+          {/* Event Cards */}
+          <div className="space-y-3.5 max-h-[420px] overflow-y-auto pr-1">
             {loading ? (
-              <div className="text-center py-10 text-slate-400 text-xs">Memuat data kalender...</div>
+              <div className="text-center py-10 text-slate-400 text-xs">Memuat data...</div>
             ) : selectedDateEvents.length === 0 ? (
-              <div className="text-center py-12 px-4 rounded-2xl bg-rose-50/50 border border-dashed border-rose-200 space-y-3">
-                <Sparkles className="w-8 h-8 text-rose-300 mx-auto" />
+              <div className="text-center py-12 px-4 rounded-2xl bg-pink-50/50 border border-dashed border-pink-200 space-y-3">
+                <Sparkles className="w-8 h-8 text-pink-300 mx-auto" />
                 <p className="text-xs text-slate-600 font-medium">
                   Belum ada momen atau catatan pada tanggal ini.
                 </p>
                 <button
                   onClick={() => setIsModalOpen(true)}
-                  className="px-4 py-2 rounded-xl bg-rose-100 text-rose-700 hover:bg-rose-200 text-xs font-bold inline-flex items-center space-x-1.5 transition-all"
+                  className="px-4 py-2 rounded-full bg-pink-100 text-[#DB2777] hover:bg-pink-200 text-xs font-bold inline-flex items-center space-x-1.5 transition-all"
                 >
                   <Plus className="w-4 h-4" />
-                  <span>Catat Momen Baru</span>
+                  <span>Catat Momen</span>
                 </button>
               </div>
             ) : (
               selectedDateEvents.map((evt) => (
                 <div
                   key={evt.id}
-                  className="p-4 rounded-2xl bg-white border border-rose-100 shadow-sm hover:shadow-md transition-all space-y-3 group"
+                  className="p-4 rounded-2xl bg-[#FFF9FA] border border-[#FDE2E8] shadow-xs hover:shadow-sm transition-all space-y-2.5 group"
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex items-center space-x-2">
@@ -511,10 +472,10 @@ export const CalendarPage: React.FC = () => {
                         {getEventIcon(evt.type)}
                       </span>
                       <div>
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                        <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400 block">
                           {evt.type}
                         </span>
-                        <h4 className="font-serif font-bold text-sm text-slate-800">
+                        <h4 className="font-serif font-bold text-sm text-[#2D2426]">
                           {evt.title}
                         </h4>
                       </div>
@@ -529,7 +490,6 @@ export const CalendarPage: React.FC = () => {
                     </button>
                   </div>
 
-                  {/* Photo Preview if exists */}
                   {evt.photo_url && (
                     <div className="rounded-xl overflow-hidden max-h-40 border border-slate-100">
                       <img
@@ -541,17 +501,15 @@ export const CalendarPage: React.FC = () => {
                     </div>
                   )}
 
-                  {/* Description */}
                   {evt.description && (
                     <p className="text-xs text-slate-600 leading-relaxed whitespace-pre-wrap">
                       {evt.description}
                     </p>
                   )}
 
-                  {/* Metadata Footer */}
                   {evt.authorOrSender && (
-                    <div className="flex items-center space-x-2 text-[11px] text-slate-400 pt-1 border-t border-slate-50">
-                      <MapPin className="w-3 h-3 text-rose-400" />
+                    <div className="flex items-center space-x-1.5 text-[11px] text-slate-400 pt-1 border-t border-pink-100/60">
+                      <MapPin className="w-3 h-3 text-pink-400" />
                       <span>{evt.authorOrSender}</span>
                     </div>
                   )}
@@ -566,8 +524,8 @@ export const CalendarPage: React.FC = () => {
 
       {/* Modal Add Form */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 space-y-6 shadow-2xl border border-rose-100 relative max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/50 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 space-y-6 shadow-2xl border border-pink-100 relative max-h-[90vh] overflow-y-auto">
             
             <button
               onClick={() => setIsModalOpen(false)}
@@ -577,10 +535,10 @@ export const CalendarPage: React.FC = () => {
             </button>
 
             <div>
-              <span className="text-xs font-bold text-rose-500 uppercase tracking-wider">
+              <span className="text-xs font-bold text-[#DB2777] uppercase tracking-wider">
                 {formatDisplayDate(selectedDateStr)}
               </span>
-              <h3 className="font-serif font-bold text-2xl text-slate-800">
+              <h3 className="font-serif font-bold text-2xl text-[#2D2426]">
                 Tambah Catatan / Momen
               </h3>
             </div>
@@ -599,13 +557,13 @@ export const CalendarPage: React.FC = () => {
                     key={item.id}
                     type="button"
                     onClick={() => setAddType(item.id as any)}
-                    className={`p-3 rounded-2xl border text-xs font-bold flex flex-col items-center space-y-1.5 transition-all ${
+                    className={`flex flex-col items-center justify-center p-3 rounded-2xl border text-xs font-bold transition-all ${
                       isSelected
-                        ? 'bg-rose-500 text-white border-rose-500 shadow-sm'
-                        : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-rose-50'
+                        ? 'bg-[#DB2777] text-white border-[#DB2777] shadow-sm'
+                        : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-pink-50'
                     }`}
                   >
-                    <Icon className="w-4 h-4" />
+                    <Icon className="w-5 h-5 mb-1" />
                     <span>{item.label}</span>
                   </button>
                 );
@@ -613,96 +571,63 @@ export const CalendarPage: React.FC = () => {
             </div>
 
             <form onSubmit={handleCreateSubmit} className="space-y-4">
-              
-              {addType !== 'note' && (
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Judul Momen</label>
-                  <input
-                    type="text"
-                    required
-                    value={formTitle}
-                    onChange={(e) => setFormTitle(e.target.value)}
-                    placeholder="Contoh: Kencan Pertama di Cafe Rosetta"
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-rose-400 focus:outline-none"
-                  />
-                </div>
-              )}
-
-              {addType === 'memory' && (
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Lokasi (Opsional)</label>
-                  <input
-                    type="text"
-                    value={formLocation}
-                    onChange={(e) => setFormLocation(e.target.value)}
-                    placeholder="Contoh: Taman Bunga, Jakarta"
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-rose-400 focus:outline-none"
-                  />
-                </div>
-              )}
-
-              {addType === 'note' && (
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">Pengirim</label>
-                    <input
-                      type="text"
-                      value={formSender}
-                      onChange={(e) => setFormSender(e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-rose-400 focus:outline-none"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">Penerima</label>
-                    <input
-                      type="text"
-                      value={formReceiver}
-                      onChange={(e) => setFormReceiver(e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-rose-400 focus:outline-none"
-                    />
-                  </div>
-                </div>
-              )}
-
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  {addType === 'note' ? 'Pesan Cinta' : 'Deskripsi / Cerita'}
-                </label>
-                <textarea
-                  rows={3}
+                <label className="block text-xs font-bold text-slate-700 mb-1">Judul / Subjek</label>
+                <input
+                  type="text"
                   required
-                  value={formDescription}
-                  onChange={(e) => setFormDescription(e.target.value)}
-                  placeholder="Tuliskan cerita manis atau perasaanmu..."
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-rose-400 focus:outline-none resize-none"
+                  value={formTitle}
+                  onChange={(e) => setFormTitle(e.target.value)}
+                  placeholder="e.g. Kencan pertama di taman..."
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#DB2777] text-xs"
                 />
               </div>
 
-              {/* Photo Upload */}
-              <MediaUploader
-                label="Foto Kenangan (Opsional)"
-                type="image"
-                value={formPhotoUrl}
-                onChange={setFormPhotoUrl}
-              />
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Deskripsi / Pesan</label>
+                <textarea
+                  rows={3}
+                  value={formDescription}
+                  onChange={(e) => setFormDescription(e.target.value)}
+                  placeholder="Tuliskan cerita atau kesan manis..."
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#DB2777] text-xs resize-none"
+                />
+              </div>
 
-              <div className="flex items-center justify-end space-x-3 pt-2">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Lokasi / Pengirim</label>
+                <input
+                  type="text"
+                  value={formLocation}
+                  onChange={(e) => setFormLocation(e.target.value)}
+                  placeholder="e.g. Jakarta, Cafe Kenangan"
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#DB2777] text-xs"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Upload Foto Media</label>
+                <MediaUploader
+                  type="image"
+                  onUploadComplete={(url) => setFormPhotoUrl(url)}
+                />
+              </div>
+
+              <div className="pt-2 flex justify-end space-x-3">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500 hover:bg-slate-100 transition-all"
+                  className="px-5 py-2.5 rounded-full text-xs font-bold text-slate-600 hover:bg-slate-100"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 rounded-xl bg-rose-500 text-white hover:bg-rose-600 text-xs font-bold shadow-md transition-all flex items-center space-x-1.5"
+                  className="px-6 py-2.5 rounded-full bg-[#DB2777] hover:bg-pink-700 text-white text-xs font-bold shadow-md shadow-pink-200"
                 >
-                  <CheckCircle2 className="w-4 h-4" />
-                  <span>Simpan Ke Kalender</span>
+                  Simpan Data
                 </button>
               </div>
-
             </form>
 
           </div>
