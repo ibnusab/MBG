@@ -10,7 +10,8 @@ import {
   Music,
   ChevronDown,
   Sparkles,
-  ExternalLink
+  ExternalLink,
+  X
 } from 'lucide-react';
 import { useMusic } from '../context/MusicContext';
 
@@ -43,11 +44,11 @@ export const FloatingMusicPlayer: React.FC = () => {
     duration > 0 ? Math.min(100, Math.max(0, (currentTime / duration) * 100)) : 0;
 
   return (
-    <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-40 flex flex-col items-end pointer-events-auto transition-all duration-300">
+    <div className="fixed bottom-16 lg:bottom-6 right-3 lg:right-6 z-40 flex flex-col items-end pointer-events-auto transition-all duration-300">
       
       {/* Expanded Floating Player Card */}
       {isExpanded && (
-        <div className="mb-3 w-[calc(100vw-2rem)] sm:w-80 glass-card p-4 sm:p-5 rounded-3xl border border-rose-200/90 shadow-2xl bg-white/95 backdrop-blur-xl animate-in slide-in-from-bottom-5 fade-in duration-200 relative overflow-hidden">
+        <div className="mb-3 w-[calc(100vw-1.5rem)] sm:w-80 glass-card p-4 sm:p-5 rounded-3xl border border-rose-200/90 shadow-2xl bg-white/95 backdrop-blur-xl animate-in slide-in-from-bottom-5 fade-in duration-200 relative overflow-hidden">
           
           {/* Top Bar with Hide / Expand controls */}
           <div className="flex items-center justify-between pb-3 mb-3 border-b border-rose-100">
@@ -72,7 +73,7 @@ export const FloatingMusicPlayer: React.FC = () => {
                 className="p-1.5 rounded-full hover:bg-rose-100/60 text-slate-500 hover:text-rose-600 transition-colors"
                 title="Close player"
               >
-                <ChevronDown className="w-4 h-4" />
+                <X className="w-4 h-4" />
               </button>
             </div>
           </div>
@@ -185,55 +186,34 @@ export const FloatingMusicPlayer: React.FC = () => {
         </div>
       )}
 
-      {/* Collapsed Side Menu Floating Toggle Button */}
-      <div className="flex items-center space-x-2">
-        <button
-          onClick={() => setIsExpanded(!isExpanded)}
-          className={`flex items-center space-x-2.5 px-4 py-2.5 rounded-full border shadow-xl backdrop-blur-xl transition-all duration-300 active:scale-95 ${
-            isPlaying
-              ? 'bg-rose-500/90 text-white border-rose-300/60 shadow-rose-400/40 hover:bg-rose-600'
-              : 'bg-white/90 text-slate-700 border-rose-200/90 hover:bg-rose-50'
-          }`}
-          title={isExpanded ? 'Hide Music Menu' : 'Open Music Menu'}
-        >
-          {/* Animated Equalizer soundwave if playing, else Music icon */}
-          {isPlaying ? (
-            <div className="flex items-end space-x-0.5 h-4">
-              <span className="w-0.5 bg-white rounded-full animate-[bounce_0.6s_infinite_100ms] h-full" />
-              <span className="w-0.5 bg-white rounded-full animate-[bounce_0.6s_infinite_300ms] h-3/4" />
-              <span className="w-0.5 bg-white rounded-full animate-[bounce_0.6s_infinite_200ms] h-1/2" />
-            </div>
-          ) : (
-            <div className="w-6 h-6 rounded-full bg-rose-100 text-rose-500 flex items-center justify-center">
-              <Music className="w-3.5 h-3.5" />
-            </div>
-          )}
+      {/* Floating Music Button (Music Logo Only) */}
+      <button
+        onClick={() => setIsExpanded(!isExpanded)}
+        className={`relative group w-13 h-13 sm:w-14 sm:h-14 rounded-full flex items-center justify-center shadow-xl backdrop-blur-xl transition-all duration-300 hover:scale-110 active:scale-95 ${
+          isPlaying
+            ? 'bg-gradient-to-tr from-[#DB2777] via-pink-600 to-rose-500 text-white shadow-pink-500/40 ring-4 ring-pink-300/40'
+            : 'bg-white/95 text-[#DB2777] border-2 border-pink-200 shadow-rose-200/50 hover:bg-pink-50'
+        }`}
+        title={isExpanded ? 'Tutup Pemutar Musik' : 'Buka Pemutar Musik'}
+        aria-label="Toggle Music Player"
+      >
+        {/* Animated Sound Wave Rings when playing */}
+        {isPlaying && (
+          <span className="absolute inset-0 rounded-full border-2 border-pink-400 animate-ping opacity-30 pointer-events-none" />
+        )}
 
-          <div className="flex flex-col items-start min-w-0 max-w-[110px] sm:max-w-[150px]">
-            <span className="text-[10px] font-sans font-bold uppercase tracking-wider opacity-80 leading-none">
-              {isPlaying ? 'Now Playing' : 'Music Player'}
-            </span>
-            <span className="text-xs font-serif font-semibold truncate w-full text-left mt-0.5">
-              {currentSong.title}
-            </span>
-          </div>
+        {/* Music Logo / Spinning Vinyl Disc */}
+        <div className={`relative flex items-center justify-center ${isPlaying ? 'animate-[spin_6s_linear_infinite]' : ''}`}>
+          <Music className="w-6 h-6" />
+        </div>
 
-          <div
-            onClick={(e) => {
-              e.stopPropagation();
-              togglePlay();
-            }}
-            className={`w-7 h-7 rounded-full flex items-center justify-center transition-all ${
-              isPlaying
-                ? 'bg-white text-rose-600 hover:scale-105'
-                : 'bg-rose-500 text-white hover:bg-rose-600'
-            }`}
-            title={isPlaying ? 'Pause' : 'Play'}
-          >
-            {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5 ml-0.5" />}
-          </div>
-        </button>
-      </div>
+        {/* Play indicator dot badge */}
+        {isPlaying && (
+          <span className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-white rounded-full flex items-center justify-center">
+            <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
+          </span>
+        )}
+      </button>
 
     </div>
   );
