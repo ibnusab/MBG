@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { NavLink } from 'react-router-dom';
+import { motion } from 'motion/react';
 import {
   Play,
   Pause,
@@ -8,10 +9,10 @@ import {
   Volume2,
   VolumeX,
   Music,
-  ChevronDown,
   Sparkles,
   ExternalLink,
-  X
+  X,
+  GripHorizontal
 } from 'lucide-react';
 import { useMusic } from '../context/MusicContext';
 
@@ -30,6 +31,7 @@ export const FloatingMusicPlayer: React.FC = () => {
   } = useMusic();
 
   const [isExpanded, setIsExpanded] = useState(false);
+  const isDraggingRef = useRef(false);
 
   if (!currentSong) return null;
 
@@ -43,12 +45,30 @@ export const FloatingMusicPlayer: React.FC = () => {
   const progressPercent =
     duration > 0 ? Math.min(100, Math.max(0, (currentTime / duration) * 100)) : 0;
 
+  const handleToggleExpand = () => {
+    if (isDraggingRef.current) return;
+    setIsExpanded(!isExpanded);
+  };
+
   return (
-    <div className="fixed bottom-16 lg:bottom-6 right-3 lg:right-6 z-40 flex flex-col items-end pointer-events-auto transition-all duration-300">
-      
+    <motion.div
+      drag
+      dragMomentum={false}
+      dragElastic={0.1}
+      onDragStart={() => {
+        isDraggingRef.current = true;
+      }}
+      onDragEnd={() => {
+        // Reset dragging state after tap/click lifecycle finishes
+        setTimeout(() => {
+          isDraggingRef.current = false;
+        }, 150);
+      }}
+      className="fixed bottom-20 lg:bottom-8 right-4 lg:right-8 z-50 flex flex-col items-end pointer-events-auto touch-none select-none cursor-grab active:cursor-grabbing"
+    >
       {/* Expanded Floating Player Card */}
       {isExpanded && (
-        <div className="mb-3 w-[calc(100vw-1.5rem)] sm:w-80 glass-card p-4 sm:p-5 rounded-3xl border border-rose-200/90 shadow-2xl bg-white/95 backdrop-blur-xl animate-in slide-in-from-bottom-5 fade-in duration-200 relative overflow-hidden">
+        <div className="mb-3 w-[calc(100vw-2rem)] sm:w-80 glass-card p-4 sm:p-5 rounded-3xl border border-rose-200/90 shadow-2xl bg-white/95 backdrop-blur-xl animate-in slide-in-from-bottom-5 fade-in duration-200 relative overflow-hidden pointer-events-auto">
           
           {/* Top Bar with Hide / Expand controls */}
           <div className="flex items-center justify-between pb-3 mb-3 border-b border-rose-100">
@@ -186,15 +206,15 @@ export const FloatingMusicPlayer: React.FC = () => {
         </div>
       )}
 
-      {/* Floating Music Button (Music Logo Only) */}
+      {/* Draggable Floating Music Button */}
       <button
-        onClick={() => setIsExpanded(!isExpanded)}
-        className={`relative group w-13 h-13 sm:w-14 sm:h-14 rounded-full flex items-center justify-center shadow-xl backdrop-blur-xl transition-all duration-300 hover:scale-110 active:scale-95 ${
+        onClick={handleToggleExpand}
+        className={`relative group w-13 h-13 sm:w-14 sm:h-14 rounded-full flex items-center justify-center shadow-xl backdrop-blur-xl transition-all duration-300 hover:scale-110 active:scale-95 cursor-grab active:cursor-grabbing ${
           isPlaying
             ? 'bg-gradient-to-tr from-[#DB2777] via-pink-600 to-rose-500 text-white shadow-pink-500/40 ring-4 ring-pink-300/40'
             : 'bg-white/95 text-[#DB2777] border-2 border-pink-200 shadow-rose-200/50 hover:bg-pink-50'
         }`}
-        title={isExpanded ? 'Tutup Pemutar Musik' : 'Buka Pemutar Musik'}
+        title={isExpanded ? 'Tutup Pemutar Musik (Geser untuk memindahkan)' : 'Buka Pemutar Musik (Geser untuk memindahkan)'}
         aria-label="Toggle Music Player"
       >
         {/* Animated Sound Wave Rings when playing */}
@@ -214,7 +234,6 @@ export const FloatingMusicPlayer: React.FC = () => {
           </span>
         )}
       </button>
-
-    </div>
+    </motion.div>
   );
 };
