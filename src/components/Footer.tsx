@@ -6,7 +6,7 @@ export const Footer: React.FC = () => {
   const { settings, daysTogether, isSupabaseConnected } = useCouple();
 
   return (
-    <footer className="mt-20 border-t border-[#FDE2E8] bg-[#FFF9FA] py-12 relative overflow-hidden">
+    <footer className="mt-20 border-t border-[#FDE2E8] bg-[#FFF9FA] pt-12 pb-24 lg:pb-12 relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row items-center justify-between gap-8 text-center md:text-left">
           
@@ -14,7 +14,7 @@ export const Footer: React.FC = () => {
           <div className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-6">
             <div className="flex items-center -space-x-3">
               <img
-                src={settings.partner1_avatar}
+                src={settings.partner1_avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400'}
                 alt={settings.partner1_name}
                 className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-md"
               />
@@ -22,7 +22,7 @@ export const Footer: React.FC = () => {
                 <Heart className="w-4 h-4 fill-current animate-pulse" />
               </div>
               <img
-                src={settings.partner2_avatar}
+                src={settings.partner2_avatar || 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=400'}
                 alt={settings.partner2_name}
                 className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-md"
               />
