@@ -1,0 +1,190 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    background-color: #fff9fa;
+    color: #4a3b3e;
+    font-family: "Playfair Display", Georgia, serif;
+    font-feature-settings: "kern", "liga", "clig", "calt";
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  .font-serif {
+    font-family: "Playfair Display", Georgia, serif;
+  }
+
+  .font-handwriting,
+  .font-caveat {
+    font-family: "Caveat", cursive, sans-serif;
+  }
+
+  .font-cursive,
+  .font-dancing {
+    font-family: "Dancing Script", cursive, sans-serif;
+  }
+
+  button,
+  input,
+  select,
+  textarea,
+  .font-sans,
+  p,
+  span,
+  label,
+  nav,
+  a {
+    font-family:
+      "Plus Jakarta Sans",
+      system-ui,
+      -apple-system,
+      sans-serif;
+  }
+}
+
+/* Handwritten Lined Notebook Paper Texture & Lines */
+.paper-sheet {
+  background-color: #fffafa;
+  background-image:
+    linear-gradient(90deg, rgba(244, 114, 182, 0.25) 1px, transparent 0),
+    linear-gradient(rgba(244, 114, 182, 0.12) 1px, transparent 0);
+  background-size:
+    100% 100%,
+    100% 2.4rem;
+  background-position:
+    2.2rem 0,
+    0 1.2rem;
+  box-shadow:
+    0 15px 45px -10px rgba(219, 39, 119, 0.15),
+    0 0 0 1px rgba(244, 114, 182, 0.25);
+}
+
+.paper-sheet-dark {
+  background-color: #faf5ef;
+  background-image:
+    linear-gradient(90deg, rgba(225, 29, 72, 0.2) 1px, transparent 0),
+    linear-gradient(#e8d8d8 1px, transparent 0);
+  background-size:
+    100% 100%,
+    100% 2.4rem;
+  background-position:
+    2rem 0,
+    0 1.2rem;
+}
+
+/* Warm Organic Custom Utility Classes */
+.bg-warm-bg {
+  background-color: #fff9fa;
+}
+
+.bg-warm-soft {
+  background-color: #ffe4e9;
+}
+
+.bg-warm-dark {
+  background-color: #2d2426;
+}
+
+.text-warm-main {
+  color: #4a3b3e;
+}
+
+.text-warm-pink {
+  color: #db2777;
+}
+
+.text-warm-muted {
+  color: #8c7a7d;
+}
+
+.border-warm-soft {
+  border-color: #fde2e8;
+}
+
+/* Custom Glassmorphism for Organic Theme */
+.glass-card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid #fde2e8;
+  box-shadow: 0 10px 30px -10px rgba(219, 39, 119, 0.08);
+}
+
+.glass-card-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card-hover:hover {
+  background: #ffffff;
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px -12px rgba(219, 39, 119, 0.15);
+  border-color: #fbcfe8;
+}
+
+.glass-nav {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid #fde2e8;
+}
+
+/* Glow effects */
+.rose-glow {
+  box-shadow: 0 0 30px rgba(219, 39, 119, 0.2);
+}
+
+.pink-glow {
+  box-shadow: 0 0 30px rgba(251, 207, 232, 0.4);
+}
+
+/* Custom organic scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #fff9fa;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #fbcfe8;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #db2777;
+}
+
+/* Envelope opening styles */
+.envelope-wrapper {
+  perspective: 1000px;
+}
+
+.envelope-flap {
+  transform-origin: top center;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.envelope-wrapper.open .envelope-flap {
+  transform: rotateX(180deg);
+}
+
+/* Floating animation */
+@keyframes floatSlow {
+  0%,
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-12px) rotate(2deg);
+  }
+}
+
+.animate-float {
+  animation: floatSlow 6s ease-in-out infinite;
+}

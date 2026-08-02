@@ -1,0 +1,6 @@
+{
+  "name": "sabrianisa",
+  "description": "A luxury romantic couple journal and website featuring love timeline, photo gallery, video memories, music corner, love notes, daily journal, anniversary countdown, animated love letter, favorites, and Supabase integration.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
