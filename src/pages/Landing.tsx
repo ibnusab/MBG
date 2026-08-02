@@ -1,19 +1,28 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { NavLink } from 'react-router-dom';
-import { Heart, Sparkles, Music, ArrowRight, Calendar, Compass, MessageCircle, Star } from 'lucide-react';
+import { Heart, Sparkles, Music, ArrowRight, Calendar, Play, Pause, SkipBack, SkipForward, Compass, MessageCircle, Star } from 'lucide-react';
 import { useCouple } from '../context/CoupleContext';
 import { useMusic } from '../context/MusicContext';
 
 export const Landing: React.FC = () => {
   const { settings, daysTogether, timeTogether } = useCouple();
-  const { isPlaying, togglePlay, currentSong } = useMusic();
+  const { isPlaying, togglePlay, currentSong, currentTime, duration, seekTo, playNext, playPrev } = useMusic();
 
   const formattedDate = new Date().toLocaleDateString('en-US', {
     month: 'long',
     day: 'numeric',
     year: 'numeric'
   });
+
+  const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
+
+  const formatTime = (seconds: number) => {
+    if (!seconds || isNaN(seconds)) return '0:00';
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+  };
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10 relative overflow-hidden">
@@ -68,12 +77,12 @@ export const Landing: React.FC = () => {
 
             <div className="flex items-center -space-x-4 z-10">
               <img
-                src={settings.partner1_avatar}
+                src={settings.partner1_avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400'}
                 alt={settings.partner1_name}
                 className="w-20 h-20 rounded-full object-cover border-2 border-white shadow-md hover:scale-105 transition-transform"
               />
               <img
-                src={settings.partner2_avatar}
+                src={settings.partner2_avatar || 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=400'}
                 alt={settings.partner2_name}
                 className="w-20 h-20 rounded-full object-cover border-2 border-white shadow-md z-10 hover:scale-105 transition-transform"
               />
@@ -173,47 +182,156 @@ export const Landing: React.FC = () => {
           </div>
         </div>
 
-        {/* Dark Warm Cultural Audio Card */}
-        <div className="bg-[#2D2426] rounded-[24px] p-6 shadow-xl flex flex-col text-white justify-between">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-[10px] font-sans font-bold uppercase tracking-[0.2em] text-pink-300 opacity-80">
-              Now Playing
-            </h3>
-            <Music className="w-4 h-4 text-pink-400" />
-          </div>
-
-          <div className="flex items-center gap-4 my-2">
-            <div className="w-14 h-14 rounded-xl bg-[#4A3B3E] border border-pink-900/40 shrink-0 overflow-hidden flex items-center justify-center">
-              {currentSong?.cover_url ? (
-                <img src={currentSong.cover_url} alt="Cover" className="w-full h-full object-cover" />
-              ) : (
-                <Heart className="w-6 h-6 text-pink-300" />
+        {/* Animated Audio Player Card */}
+        <div className={`bg-[#2D2426] rounded-[24px] p-6 shadow-xl flex flex-col text-white justify-between relative overflow-hidden transition-all duration-500 ${
+          isPlaying ? 'shadow-[0_0_30px_rgba(219,39,119,0.35)] border border-pink-500/40 ring-1 ring-pink-500/20' : 'border border-transparent'
+        }`}>
+          {/* Header with Live Status & Equalizer Animation */}
+          <div className="flex justify-between items-center mb-3">
+            <div className="flex items-center space-x-2">
+              <h3 className="text-[10px] font-sans font-bold uppercase tracking-[0.2em] text-pink-300 opacity-80">
+                Now Playing
+              </h3>
+              {isPlaying && (
+                <span className="flex items-center space-x-1 px-2 py-0.5 rounded-full bg-pink-500/20 text-pink-300 text-[9px] font-bold tracking-wider uppercase animate-pulse">
+                  <span className="w-1.5 h-1.5 rounded-full bg-pink-400" />
+                  <span>Playing</span>
+                </span>
               )}
             </div>
-            <div className="overflow-hidden text-left">
-              <p className="font-serif font-bold text-sm text-white truncate">
-                {currentSong?.title || 'Strawberries & Cigarettes'}
-              </p>
-              <p className="text-xs text-pink-200/70 truncate font-sans">
-                {currentSong?.artist || 'Troye Sivan'}
-              </p>
+
+            <div className="flex items-center space-x-1.5 h-4">
+              {isPlaying ? (
+                <div className="flex items-end space-x-0.5 h-4 px-1">
+                  <motion.span
+                    animate={{ height: ['25%', '100%', '35%', '90%', '25%'] }}
+                    transition={{ repeat: Infinity, duration: 0.6, ease: 'easeInOut' }}
+                    className="w-1 bg-[#DB2777] rounded-full"
+                  />
+                  <motion.span
+                    animate={{ height: ['65%', '30%', '100%', '45%', '65%'] }}
+                    transition={{ repeat: Infinity, duration: 0.8, ease: 'easeInOut' }}
+                    className="w-1 bg-pink-400 rounded-full"
+                  />
+                  <motion.span
+                    animate={{ height: ['35%', '85%', '45%', '100%', '35%'] }}
+                    transition={{ repeat: Infinity, duration: 0.5, ease: 'easeInOut' }}
+                    className="w-1 bg-[#DB2777] rounded-full"
+                  />
+                  <motion.span
+                    animate={{ height: ['85%', '25%', '95%', '35%', '85%'] }}
+                    transition={{ repeat: Infinity, duration: 0.7, ease: 'easeInOut' }}
+                    className="w-1 bg-pink-300 rounded-full"
+                  />
+                </div>
+              ) : (
+                <Music className="w-4 h-4 text-pink-400" />
+              )}
             </div>
           </div>
 
-          <div className="w-full bg-[#4A3B3E] h-1.5 rounded-full my-3 relative overflow-hidden">
-            <div className="absolute left-0 top-0 h-full w-[65%] bg-[#DB2777] rounded-full" />
+          {/* Song Cover Art (Spinning Vinyl when playing) & Metadata */}
+          <div className="flex items-center gap-4 my-2">
+            <div className="relative shrink-0">
+              <div
+                className={`w-14 h-14 bg-[#4A3B3E] border border-pink-900/40 overflow-hidden flex items-center justify-center transition-all duration-500 ${
+                  isPlaying
+                    ? 'animate-[spin_10s_linear_infinite] shadow-[0_0_20px_rgba(219,39,119,0.5)] ring-2 ring-pink-500/60 rounded-full'
+                    : 'rounded-xl'
+                }`}
+              >
+                {currentSong?.cover_url ? (
+                  <img src={currentSong.cover_url} alt="Cover" className="w-full h-full object-cover" />
+                ) : (
+                  <Heart className="w-6 h-6 text-pink-300" />
+                )}
+              </div>
+              {isPlaying && (
+                <div className="absolute inset-0 m-auto w-3 h-3 rounded-full bg-[#2D2426] border border-pink-300 shadow-xs pointer-events-none" />
+              )}
+            </div>
+
+            <div className="overflow-hidden text-left flex-1 min-w-0">
+              <p className="font-serif font-bold text-sm text-white truncate">
+                {currentSong?.title || 'Ceritanya Jatuh Cinta'}
+              </p>
+              <p className="text-xs text-pink-200/70 truncate font-sans">
+                {currentSong?.artist || 'Aku Jeje'}
+              </p>
+              {currentSong?.dedication && (
+                <p className="text-[10px] text-pink-300/90 italic truncate mt-0.5">
+                  💌 "{currentSong.dedication}"
+                </p>
+              )}
+            </div>
           </div>
 
-          <div className="flex items-center justify-between pt-2">
-            <span className="text-[10px] font-sans font-bold text-pink-200/60 uppercase tracking-widest">
+          {/* Interactive Seekable Progress Bar */}
+          <div className="space-y-1 my-2">
+            <div className="relative w-full h-1.5 bg-[#4A3B3E] rounded-full overflow-hidden flex items-center group cursor-pointer">
+              <div
+                className="absolute left-0 top-0 h-full bg-gradient-to-r from-pink-500 to-[#DB2777] rounded-full transition-all duration-100"
+                style={{ width: `${progressPercent}%` }}
+              />
+              <input
+                type="range"
+                min={0}
+                max={duration || 100}
+                value={currentTime || 0}
+                onChange={(e) => seekTo(Number(e.target.value))}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              />
+            </div>
+            <div className="flex justify-between items-center text-[10px] text-pink-200/60 font-mono">
+              <span>{formatTime(currentTime)}</span>
+              <span>{formatTime(duration)}</span>
+            </div>
+          </div>
+
+          {/* Controls Footer */}
+          <div className="flex items-center justify-between pt-1">
+            <span className="text-[10px] font-sans font-bold text-pink-200/60 uppercase tracking-widest hidden sm:inline">
               Background Melody
             </span>
-            <button
-              onClick={togglePlay}
-              className="px-4 py-1.5 bg-white text-[#2D2426] rounded-full text-xs font-sans font-bold uppercase tracking-wider hover:bg-pink-100 transition-all flex items-center space-x-1"
-            >
-              <span>{isPlaying ? 'Pause' : 'Play'}</span>
-            </button>
+
+            <div className="flex items-center justify-between w-full sm:w-auto space-x-2">
+              <button
+                onClick={playPrev}
+                className="p-1.5 rounded-full hover:bg-white/10 text-pink-200 hover:text-white transition-colors"
+                title="Lagu Sebelumnya"
+              >
+                <SkipBack className="w-4 h-4" />
+              </button>
+
+              <button
+                onClick={togglePlay}
+                className={`px-5 py-1.5 rounded-full text-xs font-sans font-bold uppercase tracking-wider transition-all flex items-center space-x-1.5 shadow-md ${
+                  isPlaying
+                    ? 'bg-[#DB2777] text-white hover:bg-pink-600 scale-105 shadow-pink-500/30'
+                    : 'bg-white text-[#2D2426] hover:bg-pink-100 hover:scale-105'
+                }`}
+              >
+                {isPlaying ? (
+                  <>
+                    <Pause className="w-3.5 h-3.5 fill-current" />
+                    <span>Pause</span>
+                  </>
+                ) : (
+                  <>
+                    <Play className="w-3.5 h-3.5 fill-current ml-0.5" />
+                    <span>Play</span>
+                  </>
+                )}
+              </button>
+
+              <button
+                onClick={playNext}
+                className="p-1.5 rounded-full hover:bg-white/10 text-pink-200 hover:text-white transition-colors"
+                title="Lagu Selanjutnya"
+              >
+                <SkipForward className="w-4 h-4" />
+              </button>
+            </div>
           </div>
         </div>
 
